@@ -3,6 +3,7 @@
 namespace Airzone\Infrastructure\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CategoryDao extends Model
 {
@@ -13,4 +14,14 @@ class CategoryDao extends Model
         'name' => 'string',
         'slug' => 'string',
     ];
+
+    public function posts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PostDao::class,
+            CategoryPostDao::TABLE,
+            'category',
+            'blog'
+        );
+    }
 }

@@ -3,11 +3,15 @@
 namespace Airzone\Infrastructure\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class PostDao extends Model
 {
-    const UPDATED_AT = 'updated';
-    const CREATED_AT = 'added';
+    public const UPDATED_AT = 'updated';
+    public const CREATED_AT = 'added';
 
     protected $table = 'posts';
     protected $casts = [
@@ -22,4 +26,40 @@ class PostDao extends Model
         'public' => 'boolean',
         'active' => 'boolean',
     ];
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CategoryDao::class,
+            CategoryPostDao::TABLE,
+            'blog',
+            'category'
+        );
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(
+            CommentDao::class,
+            'user'
+        );
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(
+            UserDao::class,
+            'user'
+        );
+    }
+
+    public function writers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            UserDao::class,
+            'comments',
+            'post_id',
+            'user'
+        );
+    }
 }

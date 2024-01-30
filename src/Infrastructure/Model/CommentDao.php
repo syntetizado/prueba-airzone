@@ -3,6 +3,7 @@
 namespace Airzone\Infrastructure\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CommentDao extends Model
 {
@@ -12,4 +13,20 @@ class CommentDao extends Model
         'datetime' => 'datetime',
         'content' => 'string',
     ];
+
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(
+            PostDao::class,
+            'post_id'
+        );
+    }
+
+    public function writer(): BelongsTo
+    {
+        return $this->belongsTo(
+            UserDao::class,
+            'user'
+        );
+    }
 }
