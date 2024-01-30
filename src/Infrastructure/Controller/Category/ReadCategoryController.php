@@ -3,13 +3,12 @@
 namespace Airzone\Infrastructure\Controller\Category;
 
 use Airzone\Infrastructure\Model\CategoryDao;
-use Airzone\Infrastructure\Model\Factory\CategoryDaoFactory;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\JsonResponse;
 
 final class ReadCategoryController extends ApiController
 {
-    public function execute(int $id, CategoryDaoFactory $factory): JsonResponse
+    public function execute(int $id): JsonResponse
     {
         $categoryDao = CategoryDao::find($id);
 

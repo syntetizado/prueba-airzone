@@ -41,7 +41,7 @@ class PostDao extends Model
     {
         return $this->hasMany(
             CommentDao::class,
-            'user'
+            'post_id'
         );
     }
 

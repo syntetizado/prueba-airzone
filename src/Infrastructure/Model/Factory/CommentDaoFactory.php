@@ -15,7 +15,7 @@ class CommentDaoFactory extends Factory
         $faker = \Faker\Factory::create();
 
         return [
-            'datetime' => new DateTime(),
+            'datetime' => (new DateTime()),
             'content' => $faker->text(20),
             'user' => 1,
         ];

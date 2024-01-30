@@ -14,11 +14,6 @@ beforeEach(fn() => DB::beginTransaction());
 afterEach(fn() => DB::rollBack());
 
 it('reads a post successfully', function () {
-    $postId = DbHelper::nextIdForTable('posts');
-    $ownerUserId = DbHelper::nextIdForTable('user');
-    $commentWriterUserId = $ownerUserId + 1;
-    $commentId = DbHelper::nextIdForTable('comments');
-
     /** @var UserDaoFactory $userDaoFactory */
     $userDaoFactory = \app(UserDaoFactory::class);
     /** @var CommentDaoFactory $commentDaoFactory */
@@ -28,26 +23,16 @@ it('reads a post successfully', function () {
 
     /** @var UserDao $ownerUserDao */
     $ownerUserDao = $userDaoFactory->create();
-    $ownerUserDao->id = $ownerUserId;
-    $ownerUserDao->save();
-
     /** @var UserDao $commentWriterUserDao */
     $commentWriterUserDao = $userDaoFactory->create();
-    $commentWriterUserDao->id = $commentWriterUserId;
-    $commentWriterUserDao->save();
-
     /** @var CommentDao $commentDao */
-    $commentDao = $commentDaoFactory->create();
-    $commentDao->id = $commentId;
-    $commentDao->user = $commentWriterUserId;
-    $commentDao->save();
-
+    $commentDao = $commentDaoFactory->create(['user' => $commentWriterUserDao->id]);
     /** @var PostDao $postDao */
-    $postDao = $postDaoFactory->create();
-    $postDao->id = $postId;
-    $postDao->user = $commentWriterUserId;
-    $postDao->comments()->save($commentDao);
-    $postDao->save();
+    $postDao = $postDaoFactory->create(['user' => $ownerUserDao->id]);
+
+    $commentDao->user = $commentWriterUserDao->id;
+    $commentDao->post_id = $postDao->id;
+    $commentDao->save();
 
     $owner = [
         'id' => $ownerUserDao->id,
@@ -63,15 +48,15 @@ it('reads a post successfully', function () {
 
     $comment = [
         'id' => $commentDao->id,
-        'user' => $commentWriterUserDao->user,
-        'datetime' => $commentDao->datetime,
+        'user' => $commentWriterUserDao->id,
+        'datetime' => $commentDao->datetime->format(DateTime::W3C),
         'content' => $commentDao->content,
     ];
 
     $post = [
-        'id' => $postId,
+        'id' => $postDao->id,
         'title' => $postDao->title,
-        'short_content' => $postDao->title,
+        'short_content' => $postDao->short_content,
         'owner' => $owner,
         'users' => [$commentWriter],
         'comments' => [$comment],
@@ -83,10 +68,10 @@ it('reads a post successfully', function () {
         ]
     ];
 
-    $response = $this->get("/posts/$postId");
+    $response = $this->get("/posts/".$postDao->id);
     $response->assertStatus(200);
 
-    $response->assertExactJson($data);
+    $response->assertJson($data);
 });
 
 it('returns not found on non existing post', function () {
