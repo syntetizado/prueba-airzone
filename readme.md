@@ -38,3 +38,17 @@ Available commands:
 ```shell
 ./test -- container pest api
 ```
+
+## -- Models -- 
+
+I decided to make simple models, casting values that are not keys.
+
+## -- Factory/Seeders -- 
+
+I'm placing factory/seeders on a simplified hexagonal architectory-like structure.
+
+Will only use Domain & Infrastructure Layers.
+
+I'm doing it for allowing testing of domain logic, 
+removing the application layer as we will put all the logic on the controllers.
+
