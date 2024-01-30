@@ -1,3 +1,7 @@
+# == DOCKER ==
+/docker/nginx/var-log/*
+/docker/php-fpm/var-log/*
+
 # == LARAVEL ==
 /public/storage
 /storage/*.key
@@ -28,3 +32,9 @@ $RECYCLE.BIN/
 
 # == PHPSTORM ==
 .idea/
+
+# == SECRETS ==
+/secrets/*
+
+# == GIT ==
+!.gitkeep

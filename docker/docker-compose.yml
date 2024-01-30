@@ -1,0 +1,52 @@
+version: '3'
+
+volumes:
+  mysql_vol_prueba_airzone:
+
+networks:
+  network_prueba_airzone:
+
+services:
+  nginx_prueba_airzone:
+    image: syntetizado/images:nginx-1.19-dev
+    ports:
+      - "80:80"
+    volumes:
+      - "..:/data"
+      - ./nginx/sites-enabled:/etc/nginx/conf.d
+      - ./nginx/var-log:/var/log/nginx
+    networks:
+      network_prueba_airzone:
+    depends_on:
+      - php_prueba_airzone
+    links:
+      - php_prueba_airzone
+
+  php_prueba_airzone:
+    build: ./php-fpm
+    ports:
+      - "9000:9000"
+    volumes:
+      - "..:/data"
+      - ./php-fpm/var-log/:/var/log/php82/
+      - ./php-fpm/conf:/etc/php82/php-fpm.d
+      - ./php-fpm/var-log/:/tmp/
+    networks:
+      network_prueba_airzone:
+    depends_on:
+      - mysql_prueba_airzone
+
+  mysql_prueba_airzone:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_vol_prueba_airzone:/var/lib/mysql
+      - ./mysql/init_scripts:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=airzone
+      - MYSQL_DATABASE=airzone
+      - MYSQL_USER=airzone
+      - MYSQL_PASSWORD=airzone
+    networks:
+      network_prueba_airzone:
