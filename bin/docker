@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+create_docker_volume() {
+    local __volume_name=$1
+    docker volume create "${__volume_name}"
+}
+
+ensure_docker_volume_existence() {
+    local __volume_name=$1
+
+    local __volume_existence=`docker volume ls -q -f "name=^"${__volume_name}"$"`
+
+    if [ -z "${__volume_existence}" ];
+    then
+        create_docker_volume "${__volume_name}"                                                                        ;
+        export exist_volume=1
+    else
+        `exit 0`                                                                                                       ;
+    fi
+}
+
+ensure_mysql_is_up() {
+    echo "Please, wait a few minutes"
+    echo ""
+    REPEAT_DELAY=10
+
+    while true
+    do
+        TABLE_INFO="$(./cmd db:table user | sed -e 's/\x1b\[[0-9;]*m//g')"
+        if [[ $TABLE_INFO == *"Connection refused"* ]]; then
+            echo "Waiting for connection"
+            sleep $REPEAT_DELAY
+            continue
+        fi
+
+        if [[ $TABLE_INFO != *"Table [user] doesn't exist."* ]]; then
+            echo "table exists."
+            break
+        fi
+
+        echo "Waiting for table"
+        sleep $REPEAT_DELAY
+    done
+}
+
+check_mysql_is_up() {
+    docker-compose -f docker/docker-compose.yml ps --services --filter "status=running" | grep mysql_prueba_airzone > /dev/null;
+
+    local EXIT_CODE="$?";
+
+    if [[ $EXIT_CODE != "0" ]]; then
+        echo "mysql service down"
+    fi
+
+    return $EXIT_CODE;
+}

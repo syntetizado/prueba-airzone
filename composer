@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+source './bin/docker'
+
+ensure_docker_volume_existence "composer_cache"                                                                     && \
+docker run                                                                                                             \
+    --rm                                                                                                               \
+    -t                                                                                                                 \
+    -e COMPOSER_MEMORY_LIMIT="-1"                                                                                      \
+    -v composer_cache:/home/apprunner/.composer/cache                                                                  \
+    -v "${HOME}/.composer":/home/apprunner/.composer                                                                   \
+    -v ".":/data                                                                                                       \
+    -w "/data/"                                                                                                        \
+    --network=docker_network_prueba_airzone                                                                            \
+    syntetizado/images:php-8.2-cli-dev composer "${@}"                                                          ;

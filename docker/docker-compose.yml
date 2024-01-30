@@ -24,8 +24,6 @@ services:
 
   php_prueba_airzone:
     build: ./php-fpm
-    ports:
-      - "9000:9000"
     volumes:
       - "..:/data"
       - ./php-fpm/var-log/:/var/log/php82/

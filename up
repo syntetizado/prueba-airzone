@@ -1,7 +1,17 @@
 #!/usr/bin/env bash
 
-PRJ_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-DOCKER_PASSWORD=$(cat "./secrets/docker")
-
 docker login --username syntetizado --password-stdin < ./secrets/docker
 docker-compose -f "docker/docker-compose.yml" up --force-recreate -d
+
+if [ ! -f .env ]; then
+    cp .env.example .env
+fi
+
+./composer install
+
+
+
+echo "Preparing DB"
+
+./cmd migrate
+./cmd db:seed

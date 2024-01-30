@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source './bin/docker'
+
+check_mysql_is_up || exit 1;
+
+docker container run                                                                                                   \
+    --rm                                                                                                               \
+    -v ".":/data                                                                                                       \
+    -w "/data"                                                                                                         \
+    --network=docker_network_prueba_airzone                                                                            \
+    syntetizado/images:php-8.2-cli-xdebug-dev-coverage ./vendor/bin/pest "$@"
