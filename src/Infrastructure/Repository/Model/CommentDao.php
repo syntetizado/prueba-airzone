@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Airzone\Infrastructure\Model;
+namespace Airzone\Infrastructure\Repository\Model;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

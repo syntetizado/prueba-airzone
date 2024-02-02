@@ -2,8 +2,8 @@
 
 namespace Airzone\Infrastructure\Controller\Post;
 
-use Airzone\Infrastructure\Model\CommentDao;
-use Airzone\Infrastructure\Model\PostDao;
+use Airzone\Infrastructure\Repository\Model\CommentDao;
+use Airzone\Infrastructure\Repository\Model\PostDao;
 use App\Http\Controllers\ApiController;
 use DateTime;
 use Illuminate\Http\JsonResponse;
@@ -19,6 +19,11 @@ final class ReadPostController extends ApiController
             return self::buildNotFoundResponse();
         }
 
+        /**
+         * @uses PostDao::owner
+         * @uses PostDao::writers
+         * @uses PostDao::comments
+         */
         return self::buildResponseFromArray([
             'body' => [
                 'post' => [

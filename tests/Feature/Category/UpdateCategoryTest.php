@@ -1,6 +1,6 @@
 <?php
 
-use Airzone\Infrastructure\Model\CategoryDao;
+use Airzone\Infrastructure\Repository\Model\CategoryDao;
 use Airzone\Shared\DbHelper;
 use Faker\Factory;
 use Illuminate\Support\Facades\DB;

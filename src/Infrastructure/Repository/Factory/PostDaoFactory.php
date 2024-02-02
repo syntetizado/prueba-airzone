@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Airzone\Infrastructure\Model\Factory;
+namespace Airzone\Infrastructure\Repository\Factory;
 
-use Airzone\Infrastructure\Model\PostDao;
+use Airzone\Infrastructure\Repository\Model\PostDao;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

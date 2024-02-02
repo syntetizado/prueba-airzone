@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Airzone\Infrastructure\Model\Factory\CategoryDaoFactory;
-use Airzone\Infrastructure\Model\Factory\CommentDaoFactory;
-use Airzone\Infrastructure\Model\Factory\PostDaoFactory;
-use Airzone\Infrastructure\Model\Factory\UserDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\CategoryDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\CommentDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\PostDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\UserDaoFactory;
 use Illuminate\Database\Seeder;
 
 final class DatabaseSeeder extends Seeder

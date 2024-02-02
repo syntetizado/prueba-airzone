@@ -1,12 +1,11 @@
 <?php
 
-use Airzone\Infrastructure\Model\CategoryDao;
-use Airzone\Infrastructure\Model\CommentDao;
-use Airzone\Infrastructure\Model\Factory\CommentDaoFactory;
-use Airzone\Infrastructure\Model\Factory\PostDaoFactory;
-use Airzone\Infrastructure\Model\Factory\UserDaoFactory;
-use Airzone\Infrastructure\Model\PostDao;
-use Airzone\Infrastructure\Model\UserDao;
+use Airzone\Infrastructure\Repository\Factory\CommentDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\PostDaoFactory;
+use Airzone\Infrastructure\Repository\Factory\UserDaoFactory;
+use Airzone\Infrastructure\Repository\Model\CommentDao;
+use Airzone\Infrastructure\Repository\Model\PostDao;
+use Airzone\Infrastructure\Repository\Model\UserDao;
 use Airzone\Shared\DbHelper;
 use Illuminate\Support\Facades\DB;
 

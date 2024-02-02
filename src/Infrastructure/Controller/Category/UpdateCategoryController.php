@@ -2,7 +2,7 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Infrastructure\Model\CategoryDao;
+use Airzone\Infrastructure\Repository\Model\CategoryDao;
 use App\Http\Controllers\ApiController;
 use Exception;
 use Illuminate\Http\JsonResponse;
