@@ -2,6 +2,8 @@
 
 namespace Airzone\Infrastructure\Repository\Factory;
 
+use Airzone\Domain\Category\Name;
+use Airzone\Domain\Category\Slug;
 use Airzone\Infrastructure\Repository\Model\CategoryDao;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -11,11 +13,9 @@ class CategoryDaoFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
-
         return [
-            'name' => $faker->colorName(),
-            'slug' => $faker->slug(),
+            'name' => Name::generate()->value(),
+            'slug' => Slug::generate()->value(),
             'visible' => true,
         ];
     }

@@ -2,6 +2,8 @@
 
 namespace Tests\Double\ArrayMotherObject;
 
+use Airzone\Domain\Category\Name;
+use Airzone\Domain\Category\Slug;
 use Tests\Double\ArrayMotherObject;
 
 final class CategoryAmo extends ArrayMotherObject
@@ -14,8 +16,8 @@ final class CategoryAmo extends ArrayMotherObject
 
         return [
             'parent_id' => $parentId,
-            'name' => $faker->regexify('/^[a-zA-Z]+( [a-zA-Z0-9]+)*$/'),
-            'slug' => $faker->slug(),
+            'name' => Name::generate()->value(),
+            'slug' => Slug::generate()->value(),
             'visible' => $faker->boolean(),
         ];
     }

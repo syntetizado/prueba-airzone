@@ -2,22 +2,24 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Infrastructure\Repository\Model\CategoryDao;
+use Airzone\Domain\Category\CategoryId;
+use Airzone\Domain\Category\CategoryRepository;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\JsonResponse;
 
 final class DeleteCategoryController extends ApiController
 {
-    public function execute(int $id): JsonResponse
+    public function execute(int $id, CategoryRepository $categoryRepository): JsonResponse
     {
-        /** @var CategoryDao $categoryDao */
-        $categoryDao = CategoryDao::find($id);
+        $categoryId = CategoryId::fromInt($id);
 
-        if (!$categoryDao) {
+        $category = $categoryRepository->findById($categoryId);
+
+        if (null === $category) {
             return self::buildNotFoundResponse();
         }
 
-        $categoryDao->delete();
+        $categoryRepository->delete($categoryId);
 
         return self::buildEmptyResponse();
     }

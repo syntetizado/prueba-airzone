@@ -59,6 +59,6 @@ class PostDao extends Model
             'comments',
             'post_id',
             'user'
-        );
+        )->distinct();
     }
 }

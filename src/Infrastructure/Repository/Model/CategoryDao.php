@@ -3,6 +3,7 @@
 namespace Airzone\Infrastructure\Repository\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CategoryDao extends Model
@@ -15,6 +16,14 @@ class CategoryDao extends Model
         'slug' => 'string',
     ];
 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(
+            CategoryDao::class,
+            'parent_id'
+        );
+    }
+
     public function posts(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -23,5 +32,11 @@ class CategoryDao extends Model
             'category',
             'blog'
         );
+    }
+
+    public function delete(): ?bool
+    {
+        $this->posts()->detach();
+        return parent::delete();
     }
 }

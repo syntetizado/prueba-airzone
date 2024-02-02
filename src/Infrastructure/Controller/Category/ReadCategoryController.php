@@ -2,25 +2,27 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Infrastructure\Repository\Model\CategoryDao;
+use Airzone\Domain\Category\CategoryId;
+use Airzone\Domain\Category\CategoryRepository;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\JsonResponse;
 
 final class ReadCategoryController extends ApiController
 {
-    public function execute(int $id): JsonResponse
+    public function execute(int $id, CategoryRepository $categoryRepository): JsonResponse
     {
-        $categoryDao = CategoryDao::find($id);
+        $categoryId = CategoryId::fromInt($id);
+        $category = $categoryRepository->findById($categoryId);
 
-        if (!$categoryDao) {
+        if (null === $category) {
             return self::buildNotFoundResponse();
         }
 
         return self::buildResponseFromArray([
-            'parent_id' => $categoryDao->parent_id,
-            'name' => $categoryDao->name,
-            'slug' => $categoryDao->slug,
-            'visible' => $categoryDao->visible
+            'parent_id' => $category->parentId()?->value(),
+            'name' => $category->name()->value(),
+            'slug' => $category->slug()->value(),
+            'visible' => $category->visible()
         ]);
     }
 }

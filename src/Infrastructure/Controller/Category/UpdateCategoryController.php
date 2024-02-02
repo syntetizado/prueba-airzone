@@ -2,7 +2,8 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Infrastructure\Repository\Model\CategoryDao;
+use Airzone\Domain\Category\CategoryId;
+use Airzone\Domain\Category\CategoryRepository;
 use App\Http\Controllers\ApiController;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -10,37 +11,46 @@ use Illuminate\Http\Request;
 
 final class UpdateCategoryController extends ApiController
 {
-    public function execute(int $id, Request $request): JsonResponse
+    public function execute(int $id, Request $request, CategoryRepository $categoryRepository): JsonResponse
     {
-        /** @var CategoryDao $categoryDao */
-        $categoryDao = CategoryDao::find($id);
-
-        if (!$categoryDao) {
-            return self::buildNotFoundResponse();
-        }
-
         try {
             $request->validate([
                 'parent_id' => 'nullable|integer',
-                'name' => 'nullable|string',
-                'slug' => 'nullable|string',
-                'visible' => 'nullable|boolean',
+                'name' => 'required|string',
+                'slug' => 'required|string',
+                'visible' => 'required|boolean',
             ]);
         } catch (Exception) {
             return self::buildBadRequestResponse();
         }
 
-        $parentId = $request->get('parent_id');
-        $name = $request->get('name');
-        $slug = $request->get('slug');
-        $visible = $request->get('visible');
+        $categoryId = CategoryId::fromInt($id);
+        $category = $categoryRepository->findById($categoryId);
 
-        $parentId === null ?: $categoryDao->parent_id = $parentId;
-        $name === null ?: $categoryDao->name = $name;
-        $slug === null ?: $categoryDao->slug = $slug;
-        $visible === null ?: $categoryDao->visible = $visible;
+        if (null === $category) {
+            return self::buildNotFoundResponse();
+        }
 
-        $categoryDao->save();
+        $parentCategoryId = null !== $request->get('parent_id')
+            ? CategoryId::fromInt($request->get('parent_id'))
+            : null;
+
+        if (null !== $parentCategoryId
+            && null === $categoryRepository->findById($parentCategoryId)
+        ) {
+            return self::buildConflictResponse();
+        }
+
+        $valuesToUpdate = [
+            'parent_id' => $request->get('parent_id'),
+            'name' => $request->get('name'),
+            'slug' => $request->get('slug'),
+            'visible' => $request->get('visible'),
+        ];
+
+        $category = $category->withUpdatedValues($valuesToUpdate);
+
+        $categoryRepository->save($category);
 
         return self::buildEmptyResponse();
     }

@@ -11,30 +11,35 @@ use Symfony\Component\HttpFoundation\Response;
 /** @method JsonResponse execute() */
 abstract class ApiController extends BaseController
 {
+    use AuthorizesRequests, ValidatesRequests;
+
+    /** Builds a JsonResponse from an array input */
     protected static function buildResponseFromArray(array $data): JsonResponse
     {
         return new JsonResponse($data);
     }
 
+    /** Builds an empty JsonResponse */
     protected static function buildEmptyResponse(): JsonResponse
     {
         return new JsonResponse();
     }
 
+    /** Builds an empty JsonResponse that returns Bad Request [400] */
     protected static function buildBadRequestResponse(): JsonResponse
     {
         return new JsonResponse([], Response::HTTP_BAD_REQUEST);
     }
 
+    /** Builds an empty JsonResponse that returns Conflict [409] */
     protected static function buildConflictResponse(): JsonResponse
     {
         return new JsonResponse([], Response::HTTP_CONFLICT);
     }
 
+    /** Builds an empty JsonResponse that returns Not found [404] */
     protected static function buildNotFoundResponse(): JsonResponse
     {
         return new JsonResponse([], Response::HTTP_NOT_FOUND);
     }
-
-    use AuthorizesRequests, ValidatesRequests;
 }

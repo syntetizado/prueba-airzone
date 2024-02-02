@@ -2,8 +2,11 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Infrastructure\Repository\Factory\CategoryDaoFactory;
-use Airzone\Infrastructure\Repository\Model\CategoryDao;
+use Airzone\Domain\Category\Category;
+use Airzone\Domain\Category\CategoryId;
+use Airzone\Domain\Category\CategoryRepository;
+use Airzone\Domain\Category\Name;
+use Airzone\Domain\Category\Slug;
 use App\Http\Controllers\ApiController;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -11,7 +14,7 @@ use Illuminate\Http\Request;
 
 final class CreateCategoryController extends ApiController
 {
-    public function execute(Request $request, CategoryDaoFactory $factory): JsonResponse
+    public function execute(Request $request, CategoryRepository $categoryRepository): JsonResponse
     {
         try {
             $request->validate([
@@ -24,31 +27,36 @@ final class CreateCategoryController extends ApiController
             return self::buildBadRequestResponse();
         }
 
-        $parentId = $request->get('parent_id');
+        $parentCategoryId = null !== $request->get('parent_id')
+            ? CategoryId::fromInt($request->get('parent_id'))
+            : null;
 
-        if (null !== $parentId && !CategoryDao::find($parentId)) {
+        if (null !== $parentCategoryId
+            && null === $categoryRepository->findById($parentCategoryId)
+        ) {
             return self::buildConflictResponse();
         }
 
-        $name = $request->get('name');
-        $slug = $request->get('slug');
+        $name = Name::fromString($request->get('name'));
+        $slug = Slug::fromString($request->get('slug'));
 
-        $categoryExists = CategoryDao::where([
-            'name' => $name,
-            'slug' => $slug
-        ])->first();
+        $categoryExists = $categoryRepository->findByNameAndSlug($name, $slug);
 
         if (null !== $categoryExists) {
             return self::buildConflictResponse();
         }
 
-        $newCategory = $factory->create([
-            'parent_id' => $parentId,
+        $category = Category::fromValues([
+            'parent_id' => $request->get('parent_id'),
             'name' => $request->get('name'),
             'slug' => $request->get('slug'),
             'visible' => $request->get('visible'),
         ]);
 
-        return self::buildResponseFromArray(['id' => $newCategory->id]);
+        $categoryRepository->create($category);
+
+        $createdCategory = $categoryRepository->findByNameAndSlug($name, $slug);
+
+        return self::buildResponseFromArray(['id' => $createdCategory->id()->value()]);
     }
 }
