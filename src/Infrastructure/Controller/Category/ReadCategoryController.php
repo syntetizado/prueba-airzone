@@ -17,12 +17,10 @@ final class ReadCategoryController extends ApiController
         }
 
         return self::buildResponseFromArray([
-            'id' => $categoryDao->id,
             'parent_id' => $categoryDao->parent_id,
             'name' => $categoryDao->name,
             'slug' => $categoryDao->slug,
-            'visible' => $categoryDao['visible'],
-
+            'visible' => $categoryDao->visible
         ]);
     }
 }

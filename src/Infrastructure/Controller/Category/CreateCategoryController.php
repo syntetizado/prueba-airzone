@@ -15,35 +15,40 @@ final class CreateCategoryController extends ApiController
     {
         try {
             $request->validate([
-                'id' => 'integer',
                 'parent_id' => 'nullable|integer',
-                'name' => 'string',
-                'slug' => 'string',
-                'visible' => 'boolean',
+                'name' => 'required|string',
+                'slug' => 'required|string',
+                'visible' => 'required|boolean',
             ]);
         } catch (Exception) {
             return self::buildBadRequestResponse();
         }
 
-        $id = $request->get('id');
         $parentId = $request->get('parent_id');
-
-        if (CategoryDao::find($id)) {
-            return self::buildConflictResponse();
-        }
 
         if (null !== $parentId && !CategoryDao::find($parentId)) {
             return self::buildConflictResponse();
         }
 
-        $factory->create([
-            'id' => $id,
+        $name = $request->get('name');
+        $slug = $request->get('slug');
+
+        $categoryExists = CategoryDao::where([
+            'name' => $name,
+            'slug' => $slug
+        ])->first();
+
+        if (null !== $categoryExists) {
+            return self::buildConflictResponse();
+        }
+
+        $newCategory = $factory->create([
             'parent_id' => $parentId,
             'name' => $request->get('name'),
             'slug' => $request->get('slug'),
             'visible' => $request->get('visible'),
         ]);
 
-        return self::buildEmptyResponse();
+        return self::buildResponseFromArray(['id' => $newCategory->id]);
     }
 }

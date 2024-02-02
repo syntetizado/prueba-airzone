@@ -1,176 +1,104 @@
 <?php
 
 use Airzone\Infrastructure\Repository\Model\CategoryDao;
-use Airzone\Shared\DbHelper;
-use Faker\Factory;
 use Illuminate\Support\Facades\DB;
+use Tests\Double\ArrayMotherObject\CategoryAmo;
 
 beforeEach(fn() => DB::beginTransaction());
 afterEach(fn() => DB::rollBack());
 
 it('creates a main category successfully', function () {
-    $id = DbHelper::nextIdForTable('categories');
-    $faker = Factory::create();
+    // it creates an array with valid category data
+    $categoryData = CategoryAmo::create();
 
-    $data = [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ];
-
-    $response = $this->post('/categories', $data);
+    // This is the SUT (Subject Under Testing), then it launches a real request
+    $response = $this->post('/categories', $categoryData);
     $response->assertStatus(200);
 
-    $categoryDao = CategoryDao::find($id);
+    // Now it rescues the new id from the response
+    $createdInstanceId = $response->json(['id']);
 
+    // Now it queries for the data temporarily stored in our DB (we are on a transaction)
+    $categoryDao = CategoryDao::find($createdInstanceId);
+
+    // And assert all data is the same as the one it was inserted
     $this->assertNotNull($categoryDao, 'Category was not saved');
-    $this->assertEquals($data, [
+    $this->assertEquals($categoryData, [
         'parent_id' => $categoryDao->parent_id,
-        'id' => $categoryDao->id,
         'name' => $categoryDao->name,
         'slug' => $categoryDao->slug,
         'visible' => $categoryDao->visible
     ]);
 });
 
-it('creates a sub category successfully', function () {
-    $id = DbHelper::nextIdForTable('categories');
-    $id2 = $id + 1;
-    $faker = Factory::create();
+it('creates a child category successfully', function () {
+    $parentCategoryData = CategoryAmo::create();
 
-    $categoryData = [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ];
-    $subCategoryData = [
-        'parent_id' => $id,
-        'id' => $id2,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ];
-
-    $response = $this->post('/categories', $categoryData);
+    // It creates a category that the sub-category can be attached to
+    $response = $this->post('/categories', $parentCategoryData);
     $response->assertStatus(200);
 
-    $categoryDao = CategoryDao::find($id);
+    // Now it rescues the parent id from the response
+    $parentCategoryId = $response->json(['id']);
 
-    $this->assertNotNull($categoryDao, 'There was a problem while saving the category');
-    $this->assertEquals($categoryData, [
-        'parent_id' => $categoryDao->parent_id,
-        'id' => $categoryDao->id,
-        'name' => $categoryDao->name,
-        'slug' => $categoryDao->slug,
-        'visible' => $categoryDao->visible
-    ]);
+    // it creates an array with valid child category data
+    $childCategoryData = CategoryAmo::create(parentId: $parentCategoryId);
 
-    $response = $this->post('/categories', $subCategoryData);
+    // This is the SUT
+    $response = $this->post('/categories', $childCategoryData);
     $response->assertStatus(200);
 
-    $subCategoryDao = CategoryDao::find($id2);
+    // Now it rescues the child id from the response
+    $childCategoryId = $response->json(['id']);
 
-    $this->assertNotNull($subCategoryDao, 'There was a problem while saving the sub-category');
-    $this->assertEquals($subCategoryData, [
-        'parent_id' => $subCategoryDao->parent_id,
-        'id' => $subCategoryDao->id,
-        'name' => $subCategoryDao->name,
-        'slug' => $subCategoryDao->slug,
-        'visible' => $subCategoryDao->visible
+    $childCategoryDao = CategoryDao::find($childCategoryId);
+
+    $this->assertNotNull($childCategoryDao, 'There was a problem while saving the sub-category');
+    $this->assertEquals($childCategoryData, [
+        'parent_id' => $childCategoryDao->parent_id,
+        'name' => $childCategoryDao->name,
+        'slug' => $childCategoryDao->slug,
+        'visible' => $childCategoryDao->visible
     ]);
 });
 
 it('fails creating category when parent not found', function () {
-    $id = DbHelper::nextIdForTable('categories');
-    $id2 = $id + 1;
-    $faker = Factory::create();
+    // it creates an array with a parent we will not find
+    $categoryData = CategoryAmo::create(parentId: 0);
 
-    $categoryData = [
-        'parent_id' => $id2,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ];
-
+    // it tries to create a category, it must fail
     $response = $this->post('/categories', $categoryData);
     $response->assertStatus(409);
 
-    $this->assertNull(CategoryDao::find($id), 'No record should be created');
+    // check the category was not saved
+    $lastRecord = CategoryDao::orderBy('id', 'desc')->first();
+
+    $this->assertNotEquals($categoryData, [
+        'parent_id' => $lastRecord->parent_id,
+        'name' => $lastRecord->name,
+        'slug' => $lastRecord->slug,
+        'visible' => $lastRecord->visible
+    ]);
 });
 
-it('fails creating category when request is bad', function () {
-    $faker = Factory::create();
-    $id = DbHelper::nextIdForTable('categories');
-
-    $this->assertNull(CategoryDao::find($id), 'Id is already taken');
-
-    $response = $this->post('/categories', [
-        'parent_id' => null,
-        'id' => null,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ]);
+// this test is using datasets to create multiple tests easily
+it('fails creating category when request is bad', function (array $categoryData) {
+    $response = $this->post('/categories', $categoryData);
     $response->assertStatus(400);
-
-    $response = $this->post('/categories', [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => null,
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ]);
-    $response->assertStatus(400);
-
-    $response = $this->post('/categories', [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => null,
-        'visible' => $faker->boolean(),
-    ]);
-    $response->assertStatus(400);
-
-    $response = $this->post('/categories', [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => null,
-    ]);
-    $response->assertStatus(400);
-
-    $this->assertNull(CategoryDao::find($id), 'No record should have been created');
-});
+})->with([
+    [CategoryAmo::withNullParameter('name')],
+    [CategoryAmo::withNullParameter('slug')],
+    [CategoryAmo::withNullParameter('visible')]
+]);
 
 it('fails creating category when it exists', function () {
-    $id = DbHelper::nextIdForTable('categories');
-    $faker = Factory::create();
+    $categoryData = CategoryAmo::create();
 
-    $categoryData = [
-        'parent_id' => null,
-        'id' => $id,
-        'name' => $faker->name(),
-        'slug' => $faker->slug(),
-        'visible' => $faker->boolean(),
-    ];
-
-    $this->assertNull(CategoryDao::find($id), 'Id is already taken');
-
+    // first time saving it will say ok
     $response = $this->post('/categories', $categoryData);
     $response->assertStatus(200);
 
-    $savedCategoryDao = CategoryDao::find($id);
-    $oldName = $categoryData['name'];
-    $categoryData['name'] = 'name_2';
-
+    // second time saving it will fail as it's using the same data
     $response = $this->post('/categories', $categoryData);
     $response->assertStatus(409);
-
-    expect($savedCategoryDao->name)->toBe($oldName);
 });

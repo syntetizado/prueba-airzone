@@ -1,37 +1,23 @@
 <?php
 
+use Airzone\Infrastructure\Repository\Factory\CategoryDaoFactory;
 use Airzone\Infrastructure\Repository\Model\CategoryDao;
-use Airzone\Shared\DbHelper;
-use Faker\Factory;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(fn() => DB::beginTransaction());
 afterEach(fn() => DB::rollBack());
 
 it('deletes a main category successfully', function () {
-    $id = DbHelper::nextIdForTable('categories');
+    $categoryDao = CategoryDaoFactory::new()->create();
+    $categoryId = $categoryDao->id;
 
-    $faker = Factory::create();
-
-    $categoryDao = new CategoryDao();
-    $categoryDao->id = $id;
-    $categoryDao->name = $faker->name();
-    $categoryDao->slug = $faker->slug();
-    $categoryDao['visible'] = $faker->boolean();
-
-    $categoryDao->save();
-
-    $response = $this->delete("/categories/$id");
+    $response = $this->delete("/categories/$categoryId");
     $response->assertStatus(200);
 
-    $this->assertNull(CategoryDao::find($id));
+    $this->assertNull(CategoryDao::find($categoryId));
 });
 
 it('returns not found on non existing category', function () {
-    $id = DbHelper::nextIdForTable('categories');
-
-    $this->assertNull(CategoryDao::find($id));
-
-    $response = $this->delete("/categories/$id");
+    $response = $this->delete("/categories/0");
     $response->assertStatus(404);
 });
