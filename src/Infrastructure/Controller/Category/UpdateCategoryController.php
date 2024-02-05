@@ -2,7 +2,7 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Domain\Category\CategoryId;
+use Airzone\Application\Command\Category\Update\UpdateCategoryCommand;
 use Airzone\Domain\Category\CategoryRepository;
 use App\Http\Controllers\ApiController;
 use Exception;
@@ -24,33 +24,17 @@ final class UpdateCategoryController extends ApiController
             return self::buildBadRequestResponse();
         }
 
-        $categoryId = CategoryId::fromInt($id);
-        $category = $categoryRepository->findById($categoryId);
+        self::handleCommand(
+            new UpdateCategoryCommand(
+                id: $id,
+                parentId: $request->get('parent_id'),
+                name: $request->get('name'),
+                slug: $request->get('slug'),
+                visible: $request->get('visible'),
+            )
+        );
 
-        if (null === $category) {
-            return self::buildNotFoundResponse();
-        }
 
-        $parentCategoryId = null !== $request->get('parent_id')
-            ? CategoryId::fromInt($request->get('parent_id'))
-            : null;
-
-        if (null !== $parentCategoryId
-            && null === $categoryRepository->findById($parentCategoryId)
-        ) {
-            return self::buildConflictResponse();
-        }
-
-        $valuesToUpdate = [
-            'parent_id' => $request->get('parent_id'),
-            'name' => $request->get('name'),
-            'slug' => $request->get('slug'),
-            'visible' => $request->get('visible'),
-        ];
-
-        $category = $category->withUpdatedValues($valuesToUpdate);
-
-        $categoryRepository->save($category);
 
         return self::buildEmptyResponse();
     }

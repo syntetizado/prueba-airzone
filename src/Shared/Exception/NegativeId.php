@@ -4,7 +4,7 @@ namespace Airzone\Shared\Exception;
 
 use Airzone\Shared\Id;
 
-final class NegativeId extends AirzoneException
+final class NegativeId extends ApiException
 {
     public static function byId(Id $id): NegativeId
     {

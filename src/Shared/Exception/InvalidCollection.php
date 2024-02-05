@@ -2,7 +2,7 @@
 
 namespace Airzone\Shared\Exception;
 
-final class InvalidCollection extends AirzoneException
+final class InvalidCollection extends ApiException
 {
     public static function byItem(object $item): InvalidCollection
     {

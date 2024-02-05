@@ -35,6 +35,11 @@ final readonly class Category
         );
     }
 
+    public static function new(Name $name, Slug $slug, bool $visible, CategoryId $parentId = null): self
+    {
+        return new self(null, $name, $slug, $visible, $parentId);
+    }
+
     public function id(): CategoryId
     {
         return $this->id;

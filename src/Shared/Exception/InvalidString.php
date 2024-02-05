@@ -2,7 +2,7 @@
 
 namespace Airzone\Shared\Exception;
 
-final class InvalidString extends AirzoneException
+final class InvalidString extends ApiException
 {
     public static function byRegexAndValue(string $regex, string $value): InvalidString
     {

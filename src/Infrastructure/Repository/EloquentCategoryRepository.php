@@ -8,6 +8,7 @@ use Airzone\Domain\Category\CategoryRepository;
 use Airzone\Domain\Category\Name;
 use Airzone\Domain\Category\Slug;
 use Airzone\Infrastructure\Repository\Model\CategoryDao;
+use Illuminate\Support\Facades\Cache;
 
 final class EloquentCategoryRepository implements CategoryRepository
 {
@@ -78,5 +79,7 @@ final class EloquentCategoryRepository implements CategoryRepository
         $categoryDao->visible = $category->visible();
 
         $categoryDao->save();
+
+        Cache::set('CREATED_CATEGORY_ID', $categoryDao->id);
     }
 }

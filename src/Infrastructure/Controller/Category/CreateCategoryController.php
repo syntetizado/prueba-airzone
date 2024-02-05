@@ -2,15 +2,13 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Domain\Category\Category;
-use Airzone\Domain\Category\CategoryId;
+use Airzone\Application\Command\Category\Create\CreateCategoryCommand;
 use Airzone\Domain\Category\CategoryRepository;
-use Airzone\Domain\Category\Name;
-use Airzone\Domain\Category\Slug;
 use App\Http\Controllers\ApiController;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 final class CreateCategoryController extends ApiController
 {
@@ -27,36 +25,15 @@ final class CreateCategoryController extends ApiController
             return self::buildBadRequestResponse();
         }
 
-        $parentCategoryId = null !== $request->get('parent_id')
-            ? CategoryId::fromInt($request->get('parent_id'))
-            : null;
+        self::handleCommand(
+            new CreateCategoryCommand(
+                parentId: $request->get('parent_id'),
+                name: $request->get('name'),
+                slug: $request->get('slug'),
+                visible: $request->get('visible')
+            )
+        );
 
-        if (null !== $parentCategoryId
-            && null === $categoryRepository->findById($parentCategoryId)
-        ) {
-            return self::buildConflictResponse();
-        }
-
-        $name = Name::fromString($request->get('name'));
-        $slug = Slug::fromString($request->get('slug'));
-
-        $categoryExists = $categoryRepository->findByNameAndSlug($name, $slug);
-
-        if (null !== $categoryExists) {
-            return self::buildConflictResponse();
-        }
-
-        $category = Category::fromValues([
-            'parent_id' => $request->get('parent_id'),
-            'name' => $request->get('name'),
-            'slug' => $request->get('slug'),
-            'visible' => $request->get('visible'),
-        ]);
-
-        $categoryRepository->create($category);
-
-        $createdCategory = $categoryRepository->findByNameAndSlug($name, $slug);
-
-        return self::buildResponseFromArray(['id' => $createdCategory->id()->value()]);
+        return self::buildResponseFromArray(['id' => Cache::get('CREATED_CATEGORY_ID')]);
     }
 }

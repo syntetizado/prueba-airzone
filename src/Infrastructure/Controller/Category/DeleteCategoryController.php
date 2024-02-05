@@ -2,7 +2,7 @@
 
 namespace Airzone\Infrastructure\Controller\Category;
 
-use Airzone\Domain\Category\CategoryId;
+use Airzone\Application\Command\Category\Delete\DeleteCategoryCommand;
 use Airzone\Domain\Category\CategoryRepository;
 use App\Http\Controllers\ApiController;
 use Illuminate\Http\JsonResponse;
@@ -11,15 +11,7 @@ final class DeleteCategoryController extends ApiController
 {
     public function execute(int $id, CategoryRepository $categoryRepository): JsonResponse
     {
-        $categoryId = CategoryId::fromInt($id);
-
-        $category = $categoryRepository->findById($categoryId);
-
-        if (null === $category) {
-            return self::buildNotFoundResponse();
-        }
-
-        $categoryRepository->delete($categoryId);
+        self::handleCommand(new DeleteCategoryCommand($id));
 
         return self::buildEmptyResponse();
     }

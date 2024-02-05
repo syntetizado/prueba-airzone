@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Airzone\Shared\Cqrs\Command;
+use Airzone\Shared\Cqrs\CommandBus;
+use Airzone\Shared\Cqrs\Query;
+use Airzone\Shared\Cqrs\QueryBus;
+use Airzone\Shared\Cqrs\QueryResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
@@ -41,5 +46,21 @@ abstract class ApiController extends BaseController
     protected static function buildNotFoundResponse(): JsonResponse
     {
         return new JsonResponse([], Response::HTTP_NOT_FOUND);
+    }
+
+    protected static function handleCommand(Command $command): void
+    {
+        /** @var CommandBus $bus */
+        $bus = \app(CommandBus::class);
+
+        $bus->handle($command);
+    }
+
+    protected static function handleQuery(Query $query): QueryResponse
+    {
+        /** @var QueryBus $bus */
+        $bus = \app(QueryBus::class);
+
+        return $bus->handle($query);
     }
 }
