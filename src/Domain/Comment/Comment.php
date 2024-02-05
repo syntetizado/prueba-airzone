@@ -4,8 +4,6 @@ namespace Airzone\Domain\Comment;
 
 use Airzone\Domain\User\UserId;
 use Airzone\Shared\Aggregate;
-use DateTime;
-use DateTimeImmutable;
 
 final readonly class Comment implements Aggregate
 {

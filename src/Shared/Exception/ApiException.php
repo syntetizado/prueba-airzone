@@ -7,7 +7,9 @@ use Throwable;
 
 abstract class ApiException extends \Exception
 {
-    protected function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    private const DEFAULT_CODE = 500;
+
+    protected function __construct(string $message = "", int $code = self::DEFAULT_CODE, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

@@ -36,7 +36,7 @@ final readonly class UpdateCategory implements CommandHandler
         $parentCategoryId = $this->validatedParentId($command);
 
         $valuesToUpdate = [
-            'parent_id' => $parentCategoryId,
+            'parent_id' => $parentCategoryId?->value(),
             'name' => $command->name(),
             'slug' => $command->slug(),
             'visible' => $command->visible(),

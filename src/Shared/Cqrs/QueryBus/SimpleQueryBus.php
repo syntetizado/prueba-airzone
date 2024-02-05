@@ -2,10 +2,6 @@
 
 namespace Airzone\Shared\Cqrs\QueryBus;
 
-use Airzone\Application\Query\Category\Read\ReadCategory;
-use Airzone\Application\Query\Category\Read\ReadCategoryQuery;
-use Airzone\Application\Query\Post\Read\ReadPost;
-use Airzone\Application\Query\Post\Read\ReadPostQuery;
 use Airzone\Shared\Cqrs\Query;
 use Airzone\Shared\Cqrs\QueryBus;
 use Airzone\Shared\Cqrs\QueryHandler;
@@ -15,12 +11,9 @@ final class SimpleQueryBus implements QueryBus
 {
     private array $queryHandlers;
 
-    public function __construct()
+    public function register(string $query, QueryHandler $handler): void
     {
-        $this->queryHandlers = [
-            ReadCategoryQuery::class => \app(ReadCategory::class),
-            ReadPostQuery::class => \app(ReadPost::class),
-        ];
+        $this->queryHandlers[$query] = $handler;
     }
 
     public function handle(Query $query): QueryResponse

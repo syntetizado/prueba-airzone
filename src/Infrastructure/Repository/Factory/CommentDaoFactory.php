@@ -2,6 +2,7 @@
 
 namespace Airzone\Infrastructure\Repository\Factory;
 
+use Airzone\Domain\Comment\Content;
 use Airzone\Infrastructure\Repository\Model\CommentDao;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -12,11 +13,9 @@ class CommentDaoFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
-
         return [
             'datetime' => (new DateTime()),
-            'content' => $faker->text(20),
+            'content' => Content::generate()->value(),
             'user' => 1,
         ];
     }

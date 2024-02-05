@@ -6,5 +6,5 @@ use Airzone\Shared\StringVo;
 
 final readonly class Content extends StringVo
 {
-    protected const MAX_CHARS = 200;
+    protected const MAX_CHARS = 1000;
 }

@@ -36,18 +36,6 @@ abstract class ApiController extends BaseController
         return new JsonResponse([], Response::HTTP_BAD_REQUEST);
     }
 
-    /** Builds an empty JsonResponse that returns Conflict [409] */
-    protected static function buildConflictResponse(): JsonResponse
-    {
-        return new JsonResponse([], Response::HTTP_CONFLICT);
-    }
-
-    /** Builds an empty JsonResponse that returns Not found [404] */
-    protected static function buildNotFoundResponse(): JsonResponse
-    {
-        return new JsonResponse([], Response::HTTP_NOT_FOUND);
-    }
-
     protected static function handleCommand(Command $command): void
     {
         /** @var CommandBus $bus */

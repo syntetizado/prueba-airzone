@@ -24,6 +24,7 @@ it('creates a main category successfully', function () {
     // And assert all data is the same as the one it was inserted
     $this->assertNotNull($categoryDao, 'Category was not saved');
     $this->assertEquals($categoryData, [
+        'id' => null,
         'parent_id' => $categoryDao->parent_id,
         'name' => $categoryDao->name,
         'slug' => $categoryDao->slug,
@@ -55,6 +56,7 @@ it('creates a child category successfully', function () {
 
     $this->assertNotNull($childCategoryDao, 'There was a problem while saving the sub-category');
     $this->assertEquals($childCategoryData, [
+        'id' => null,
         'parent_id' => $childCategoryDao->parent_id,
         'name' => $childCategoryDao->name,
         'slug' => $childCategoryDao->slug,
@@ -74,6 +76,7 @@ it('fails creating category when parent not found', function () {
     $lastRecord = CategoryDao::orderBy('id', 'desc')->first();
 
     $this->assertNotEquals($categoryData, [
+        'id' => null,
         'parent_id' => $lastRecord->parent_id,
         'name' => $lastRecord->name,
         'slug' => $lastRecord->slug,

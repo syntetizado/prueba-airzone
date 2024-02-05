@@ -8,6 +8,9 @@ final class NegativeId extends ApiException
 {
     public static function byId(Id $id): NegativeId
     {
-        return new self(\sprintf("Id (%s) must be positive", $id->value()));
+        return new self(
+            message: \sprintf("Id (%s) must be positive", $id->value()),
+            code: 400
+        );
     }
 }

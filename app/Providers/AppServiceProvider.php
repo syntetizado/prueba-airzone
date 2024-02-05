@@ -2,6 +2,16 @@
 
 namespace App\Providers;
 
+use Airzone\Application\Command\Category\Create\CreateCategory;
+use Airzone\Application\Command\Category\Create\CreateCategoryCommand;
+use Airzone\Application\Command\Category\Delete\DeleteCategory;
+use Airzone\Application\Command\Category\Delete\DeleteCategoryCommand;
+use Airzone\Application\Command\Category\Update\UpdateCategory;
+use Airzone\Application\Command\Category\Update\UpdateCategoryCommand;
+use Airzone\Application\Query\Category\Read\ReadCategory;
+use Airzone\Application\Query\Category\Read\ReadCategoryQuery;
+use Airzone\Application\Query\Post\Read\ReadPost;
+use Airzone\Application\Query\Post\Read\ReadPostQuery;
 use Airzone\Domain\Category\CategoryRepository;
 use Airzone\Domain\Post\PostRepository;
 use Airzone\Infrastructure\Repository\EloquentCategoryRepository;
@@ -24,11 +34,11 @@ class AppServiceProvider extends ServiceProvider
             abstract: PostRepository::class,
             concrete: EloquentPostRepository::class
         );
-        $this->app->bind(
+        $this->app->singleton(
             abstract: CommandBus::class,
             concrete: SimpleCommandBus::class
         );
-        $this->app->bind(
+        $this->app->singleton(
             abstract: QueryBus::class,
             concrete: SimpleQueryBus::class
         );
@@ -36,5 +46,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        /** @var CommandBus $commandBus */
+        $commandBus = \app(CommandBus::class);
+        $commandBus->register(CreateCategoryCommand::class, \app(CreateCategory::class));
+        $commandBus->register(DeleteCategoryCommand::class, \app(DeleteCategory::class));
+        $commandBus->register(UpdateCategoryCommand::class, \app(UpdateCategory::class));
+
+        /** @var QueryBus $queryBus */
+        $queryBus = \app(QueryBus::class);
+        $queryBus->register(ReadCategoryQuery::class, \app(ReadCategory::class));
+        $queryBus->register(ReadPostQuery::class, \app(ReadPost::class));
     }
 }

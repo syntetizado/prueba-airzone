@@ -2,6 +2,8 @@
 
 namespace Airzone\Infrastructure\Repository\Factory;
 
+use Airzone\Domain\Category\Slug;
+use Airzone\Domain\Post\Title;
 use Airzone\Infrastructure\Repository\Model\PostDao;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -17,8 +19,8 @@ class PostDaoFactory extends Factory
         return [
             'updated' => new DateTime(),
             'added' => new DateTime(),
-            'title' => $faker->title(),
-            'slug' => $faker->slug(),
+            'title' => Title::generate()->value(),
+            'slug' => Slug::generate()->value(),
             'marks' => null,
             'picture' => 'http://placekitten.com/200/300',
             'short_content' => $faker->text(20),

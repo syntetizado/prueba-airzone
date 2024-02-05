@@ -35,11 +35,12 @@ abstract class Collection
     /** Named constructor taking an array of items */
     public static function fromArray(array $items): static
     {
-        /** @var Aggregate $class */
         $class = static::TYPE;
 
         return new static(\array_map(
-            callback: fn($item) => $class::fromArray($item),
+            callback: fn($item) => \is_array($item)
+                ? $class::fromArray($item)
+                : $item,
             array: $items
         ));
     }
@@ -51,7 +52,8 @@ abstract class Collection
 
         foreach ($this->items as $item) {
             if (! $item instanceof Aggregate) {
-                break;
+                $array[] = $item;
+                continue;
             }
 
             $array[] = $item->toArray();
@@ -61,7 +63,7 @@ abstract class Collection
     }
 
     /** Named constructor creating an empty Collection */
-    public function empty(): static
+    public static function empty(): static
     {
         return new static;
     }

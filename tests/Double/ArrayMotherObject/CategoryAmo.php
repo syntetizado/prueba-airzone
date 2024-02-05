@@ -15,6 +15,7 @@ final class CategoryAmo extends ArrayMotherObject
         $faker = \Faker\Factory::create();
 
         return [
+            'id' => null,
             'parent_id' => $parentId,
             'name' => Name::generate()->value(),
             'slug' => Slug::generate()->value(),
@@ -28,5 +29,18 @@ final class CategoryAmo extends ArrayMotherObject
         $category[$parameter] = null;
 
         return $category;
+    }
+
+    public static function withValues(array $values): array
+    {
+        $amoValues = CategoryAmo::create();
+
+        return [
+            'id' => $values['id'] ?? $amoValues['id'],
+            'parent_id' => $values['parent_id'] ?? $amoValues['parent_id'],
+            'name' => $values['name'] ?? $amoValues['name'],
+            'slug' => $values['slug'] ?? $amoValues['slug'],
+            'visible' => $values['visible'] ?? $amoValues['visible'],
+        ];
     }
 }
